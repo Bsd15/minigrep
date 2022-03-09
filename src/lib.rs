@@ -8,7 +8,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(mut args: env::Args) -> Result<Config, &'static str> {
+    pub fn new(mut args: impl Iterator<Item = String>) -> Result<Config, &'static str> {
         args.next();
         let query = match args.next() {
             Some(arg) => arg,
@@ -61,12 +61,8 @@ mod config_tests {
     use super::*;
     #[test]
     fn config_new_should_succeed() {
-        let result_config = Config::new(&[
-            String::from("lib.rs"),
-            String::from("test"),
-            String::from("test.txt"),
-        ])
-        .unwrap();
+        let result_config =
+            Config::new(["lib.rs", "test", "test.txt"].iter().map(|s| s.to_string())).unwrap();
         let expected_config = Config {
             query: String::from("test"),
             filename: String::from("test.txt"),
@@ -78,7 +74,7 @@ mod config_tests {
     #[test]
     #[should_panic]
     fn config_new_should_fail() {
-        Config::new(&[String::from("test"), String::from("test.txt")]).unwrap();
+        Config::new(["test", "test.txt"].iter().map(|s| s.to_string())).unwrap();
     }
 }
 
